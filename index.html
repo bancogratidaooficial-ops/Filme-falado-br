@@ -2,102 +2,94 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FILME FALADO BR</title>
-<link rel="manifest" href="manifest.json">
+<title>FILME FALADO BR - TRADUZINDO</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0a0a0f;color:#fff;font-family:Inter,Arial}
+*{box-sizing:border-box}body{margin:0;background:#0a0a0f;color:#fff;font-family:Arial}
 .header{display:flex;align-items:center;gap:12px;padding:16px;background:#0a0a0f;position:sticky;top:0;z-index:10}
 .logo{width:48px;height:48px;background:#ff9c00;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
-.top-icons{margin-left:auto;display:flex;gap:18px;color:#666}
-.top-icons .ativo{color:#ff9c00;background:#1a1a24;padding:8px 14px;border-radius:12px}
-.title{padding:0 20px;font-size:38px;font-weight:900;line-height:1.1}
-.title b{color:#ff9c00}
-.desc{padding:16px 20px;color:#9aa0a6;font-size:17px;line-height:1.5}
+.title{padding:0 20px;font-size:32px;font-weight:900;line-height:1.1}.title b{color:#ff9c00}
+.desc{padding:14px 20px;color:#9aa0a6;font-size:15px}
 .btns{padding:10px 20px;display:flex;flex-direction:column;gap:12px}
-.btn-laranja{width:100%;background:#ff9c00;color:#000;border:0;padding:18px;border-radius:18px;font-weight:900;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-dark{width:fit-content;background:#161622;border:1px solid #2a2a3a;color:#fff;padding:14px 20px;border-radius:16px;font-weight:700;display:flex;align-items:center;gap:8px}
-.card{margin:20px;background:#14141f;border:1px solid #232334;border-radius:22px;padding:18px}
-.card .label{color:#ff9c00;font-size:12px;font-weight:900;letter-spacing:3px;margin-bottom:14px}
-.item{display:flex;gap:12px;margin-bottom:18px}
-.ico{width:44px;height:44px;background:#1c1c28;border:1px solid #2f2f3f;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#ff9c00}
-.item b{font-size:15px} .item span{color:#8b8fa3;font-size:13px;display:block;margin-top:3px}
-#log{margin:20px;background:#000;border:1px solid #222;border-radius:14px;padding:12px;font-size:12px;color:#0f0;max-height:180px;overflow:auto;display:none}
-audio{width:100%;margin-top:10px}
+.btn-laranja{width:100%;background:#ff9c00;color:#000;border:0;padding:16px;border-radius:18px;font-weight:900;font-size:15px}
+.btn-dark{width:100%;background:#161622;border:2px solid #ff9c00;color:#fff;padding:14px;border-radius:16px;font-weight:900}
+.btn-dark.ativo{background:#ff0000;border-color:#ff0000}
+#log{margin:12px 20px;background:#000;border:1px solid #333;border-radius:14px;padding:12px;font-size:13px;max-height:300px;overflow:auto}
+.trad{color:#00ff88;font-weight:900;font-size:14px;margin-top:6px}
+.orig{color:#888;font-size:12px}
+video{width:100%;border-radius:14px}
+.card{margin:16px;background:#14141f;border-radius:18px;padding:16px}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="logo">🎬</div>
-<div><b style="font-weight:900">FILME FALADO</b><br><b style="color:#ff9c00">BR</b></div>
-<div class="top-icons"><span class="ativo">🏠</span><span>🎥</span><span>🎙️</span><span>📁</span></div>
-</div>
-
-<div class="title">Assista a qualquer<br>filme <b>em português<br>brasileiro</b></div>
-<div class="desc">O Filme Falado BR escuta o áudio original em qualquer idioma, transcreve, traduz e gera a voz em português do Brasil na hora — enquanto você assiste.</div>
-
+<div class="header"><div class="logo">🎬</div><div><b>FILME FALADO</b><br><b style="color:#ff9c00">BR - AGORA TRADUZ</b></div></div>
+<div class="title">Assista em <b>português<br>brasileiro</b></div>
+<div class="desc">Agora com tradução REAL automática</div>
 <div class="btns">
 <input type="file" id="fileInput" accept="video/*,audio/*" style="display:none">
 <button class="btn-laranja" onclick="document.getElementById('fileInput').click()">⬆️ Dubrar um arquivo</button>
-<button class="btn-dark" id="btnLive" onclick="toggleLive()">🎙️ Escuta ao vivo</button>
+<button class="btn-dark" id="btnLive" onclick="toggleLive()">🎙️ Escuta ao vivo - CLIQUE AQUI</button>
 </div>
-
-<div id="log"></div>
-<div id="playerBox" style="padding:0 20px;display:none"><video id="video" controls style="width:100%;border-radius:14px"></video><div id="audioBox"></div></div>
-
-<div class="card">
-<div class="label">COMO FUNCIONA</div>
-<div class="item"><div class="ico">🎧</div><div><b>1. Escuta o áudio original</b><span>Qualquer idioma — inglês, espanhol, francês...</span></div></div>
-<div class="item"><div class="ico">〰️</div><div><b>2. Transcreve com Whisper</b><span>Reconhecimento de fala preciso, trecho a trecho</span></div></div>
-<div class="item"><div class="ico">文A</div><div><b>3. Traduz para português</b><span>Fala natural do Brasil, pronta para dublagem</span></div></div>
-<div class="item"><div class="ico">🎙️</div><div><b>4. Gera a voz e fala na hora</b><span>Voz pt-BR via fal.ai, sincronizada com a cena</span></div></div>
-</div>
+<div id="log" style="display:none"></div>
+<div id="playerBox" style="padding:0 20px;display:none"><video id="video" controls></video></div>
 
 <script>
 let listening=false, recognizer;
 const logEl=document.getElementById('log');
-function addLog(t){logEl.style.display='block';logEl.innerHTML+=t+'<br>';logEl.scrollTop=9999}
+function addLog(html){logEl.style.display='block'; logEl.innerHTML = html + '<hr style=border:0;border-top:1px solid #222;margin:8px 0>' + logEl.innerHTML;}
 
 document.getElementById('fileInput').onchange=(e)=>{
 let file=e.target.files[0]; if(!file)return;
 let url=URL.createObjectURL(file);
 document.getElementById('playerBox').style.display='block';
 document.getElementById('video').src=url;
-addLog('📁 Arquivo carregado: '+file.name);
-addLog('▶️ Dê play no vídeo e clique em "Escuta ao vivo" para dublar na hora');
+addLog(`📁 <b>Arquivo:</b> ${file.name}<br>▶️ Dê PLAY no vídeo com volume ALTO e clique em Escuta ao vivo`);
 }
 
-// VERSÃO DEMO FUNCIONAL - Usa Web Speech API do próprio celular (sem precisar de API key)
-// Pra versão PRO com Whisper + fal.ai, só trocar essa função pela chamada da API
+// FUNÇÃO QUE TRADUZ DE VERDADE - GRÁTIS
+async function traduzir(texto){
+try{
+let res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|pt-BR`);
+let data = await res.json();
+return data.responseData.translatedText || texto;
+}catch(e){ return texto; }
+}
+
+function falarPT(texto){
+if('speechSynthesis' in window){
+speechSynthesis.cancel();
+let u=new SpeechSynthesisUtterance(texto);
+u.lang='pt-BR'; u.rate=1.0; u.pitch=1.1;
+let vozes=speechSynthesis.getVoices();
+let vozBR=vozes.find(v=>v.lang==='pt-BR' || v.name.includes('Brazil'))||vozes[0];
+if(vozBR) u.voice=vozBR;
+speechSynthesis.speak(u);
+}
+}
+
 function toggleLive(){
 let btn=document.getElementById('btnLive');
 if(!listening){
-if(!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)){alert('Seu navegador não suporta escuta ao vivo. Use Chrome no Android.');return}
 let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){alert('Use Chrome no Android!'); return}
 recognizer=new SR();
-recognizer.lang='en-US'; // escuta inglês, mas pode mudar pra auto
-recognizer.continuous=true; recognizer.interimResults=true;
-recognizer.onstart=()=>{addLog('🎙️ ESCUTANDO... Fale ou dê play no filme em inglês'); btn.innerHTML='⏹️ Parar escuta'; btn.style.background='#ff0000'; btn.style.color='#fff'; listening=true;}
-recognizer.onresult=(e)=>{
-let transcript=''; for(let i=e.resultIndex;i<e.results.length;i++){transcript+=e.results[i][0].transcript}
-if(transcript.trim()){
-// TRADUÇÃO SIMPLES DEMO (na versão PRO usa API de tradução)
-addLog('🇺🇸 Original: '+transcript);
-let traduzido = '[TRADUZINDO] '+transcript; // aqui entra a API de tradução
-addLog('🇧🇷 Traduzido: '+transcript);
-falarPT(transcript); // fala na hora
+recognizer.lang='en-US'; // escuta inglês
+recognizer.continuous=true; recognizer.interimResults=false;
+recognizer.onstart=()=>{listening=true; btn.textContent='⏹️ PARAR ESCUTA - ESTOU OUVINDO'; btn.classList.add('ativo'); addLog('🎙️ <b style=color:#ff9c00>ESCUTANDO... Aumente o volume do filme!</b>');}
+recognizer.onend=()=>{if(listening) try{recognizer.start()}catch(e){}}
+recognizer.onerror=(e)=>{addLog('Erro: '+e.error)}
+recognizer.onresult=async (e)=>{
+let transcript=e.results[e.results.length-1][0].transcript.trim();
+if(transcript.length<2) return;
+addLog(`<div class=orig>🇺🇸 EN: ${transcript}<br>⏳ Traduzindo...</div>`);
+let traduzido = await traduzir(transcript);
+addLog(`<div class=trad>🇧🇷 PT-BR: ${traduzido}</div><div class=orig>Original: ${transcript}</div>`);
+falarPT(traduzido);
 }
-}
-recognizer.onend=()=>{if(listening) recognizer.start()}
 recognizer.start();
 }else{
-recognizer.stop(); listening=false; btn.innerHTML='🎙️ Escuta ao vivo'; btn.style.background='#161622'; btn.style.color='#fff'; addLog('⏹️ Escuta parada');
-}
-}
-function falarPT(texto){
-if('speechSynthesis' in window){
-let u=new SpeechSynthesisUtterance(texto);
-u.lang='pt-BR'; u.rate=1.1; u.voice=speechSynthesis.getVoices().find(v=>v.lang.includes('pt-BR'))||null;
-speechSynthesis.speak(u);
+try{recognizer.stop()}catch(e){}
+listening=false; btn.textContent='🎙️ Escuta ao vivo - CLIQUE AQUI'; btn.classList.remove('ativo');
+addLog('⏹️ Escuta parada');
 }
 }
 </script>
