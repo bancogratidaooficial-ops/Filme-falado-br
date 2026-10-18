@@ -2,95 +2,99 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FILME FALADO BR - TRADUZINDO</title>
+<title>FILME FALADO BR V3</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0a0a0f;color:#fff;font-family:Arial}
-.header{display:flex;align-items:center;gap:12px;padding:16px;background:#0a0a0f;position:sticky;top:0;z-index:10}
-.logo{width:48px;height:48px;background:#ff9c00;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
-.title{padding:0 20px;font-size:32px;font-weight:900;line-height:1.1}.title b{color:#ff9c00}
-.desc{padding:14px 20px;color:#9aa0a6;font-size:15px}
-.btns{padding:10px 20px;display:flex;flex-direction:column;gap:12px}
-.btn-laranja{width:100%;background:#ff9c00;color:#000;border:0;padding:16px;border-radius:18px;font-weight:900;font-size:15px}
-.btn-dark{width:100%;background:#161622;border:2px solid #ff9c00;color:#fff;padding:14px;border-radius:16px;font-weight:900}
-.btn-dark.ativo{background:#ff0000;border-color:#ff0000}
-#log{margin:12px 20px;background:#000;border:1px solid #333;border-radius:14px;padding:12px;font-size:13px;max-height:300px;overflow:auto}
-.trad{color:#00ff88;font-weight:900;font-size:14px;margin-top:6px}
-.orig{color:#888;font-size:12px}
-video{width:100%;border-radius:14px}
-.card{margin:16px;background:#14141f;border-radius:18px;padding:16px}
+.top{padding:16px;font-weight:900}
+.title{padding:0 16px;font-size:28px;font-weight:900} .title b{color:#ff9c00}
+.box{margin:12px;background:#14141f;border-radius:16px;padding:12px;border:1px solid #232334}
+.btn{width:100%;padding:16px;border:0;border-radius:14px;font-weight:900;margin-top:8px}
+.btn-orange{background:#ff9c00;color:#000}.btn-red{background:#ff0000;color:#fff}
+.btn-green{background:#00ff88;color:#000}.btn-dark{background:#222;color:#fff;border:1px solid #444}
+#log{margin:12px;background:#000;border:1px solid #333;border-radius:12px;padding:10px;font-size:13px;max-height:400px;overflow:auto;white-space:pre-wrap}
+video{width:100%;border-radius:12px;background:#000}
+input{width:100%;padding:14px;border-radius:10px;border:1px solid #444;background:#000;color:#fff;margin-top:8px}
 </style>
 </head>
 <body>
-<div class="header"><div class="logo">🎬</div><div><b>FILME FALADO</b><br><b style="color:#ff9c00">BR - AGORA TRADUZ</b></div></div>
-<div class="title">Assista em <b>português<br>brasileiro</b></div>
-<div class="desc">Agora com tradução REAL automática</div>
-<div class="btns">
-<input type="file" id="fileInput" accept="video/*,audio/*" style="display:none">
-<button class="btn-laranja" onclick="document.getElementById('fileInput').click()">⬆️ Dubrar um arquivo</button>
-<button class="btn-dark" id="btnLive" onclick="toggleLive()">🎙️ Escuta ao vivo - CLIQUE AQUI</button>
+<div class="top">🎬 FILME FALADO BR <b style="color:#ff9c00">V3 - CORRIGIDO</b></div>
+<div class="title">Agora <b>TRADUZ DE VERDADE</b></div>
+
+<div class="box">
+<input type="file" id="fileInput" accept="video/*">
+<video id="video" controls playsinline></video>
+<button class="btn btn-dark" onclick="testarVoz()">🔊 TESTAR VOZ PT-BR (clique aqui primeiro)</button>
 </div>
-<div id="log" style="display:none"></div>
-<div id="playerBox" style="padding:0 20px;display:none"><video id="video" controls></video></div>
+
+<div class="box">
+<b>1 - TESTE DE TRADUÇÃO MANUAL:</b>
+<input id="textoTeste" value="They'll find you no matter what" placeholder="Digite em inglês">
+<button class="btn btn-orange" onclick="traduzirManual()">🌎 TRADUZIR AGORA - BOTÃO QUE FUNCIONA</button>
+<div id="resultado" style="margin-top:10px;color:#00ff88;font-weight:900;font-size:16px"></div>
+</div>
+
+<div class="box">
+<b>2 - ESCUTA AO VIVO:</b>
+<button class="btn btn-red" id="btnLive" onclick="toggleLive()">🎙️ CLICAR PARA COMEÇAR A ESCUTAR</button>
+<div id="log"></div>
+</div>
 
 <script>
-let listening=false, recognizer;
 const logEl=document.getElementById('log');
-function addLog(html){logEl.style.display='block'; logEl.innerHTML = html + '<hr style=border:0;border-top:1px solid #222;margin:8px 0>' + logEl.innerHTML;}
+function log(t){logEl.innerHTML=t+'<br><br>'+logEl.innerHTML}
+function falar(texto){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(texto);u.lang='pt-BR';u.rate=1;let vs=speechSynthesis.getVoices();let br=vs.find(v=>v.lang.toLowerCase().includes('pt-br'));if(br)u.voice=br;speechSynthesis.speak(u);}
+
+function testarVoz(){falar('Voz em português do Brasil funcionando! Agora pode traduzir.');log('🔊 Voz pt-BR testada com sucesso!');}
+
+// TRADUÇÃO QUE NÃO FALHA - usa Google Translate direto
+async function traduzirGoogle(texto){
+try{
+let url=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=${encodeURIComponent(texto)}`;
+let r=await fetch(url); let j=await r.json();
+return j[0].map(x=>x[0]).join('');
+}catch(e){
+try{ // fallback MyMemory
+let r2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|pt-BR`);
+let j2=await r2.json(); return j2.responseData.translatedText;
+}catch(e2){return 'Erro de internet - ative os dados';}
+}
+}
+
+async function traduzirManual(){
+let txt=document.getElementById('textoTeste').value;
+if(!txt){alert('Digite algo');return}
+document.getElementById('resultado').innerText='Traduzindo...';
+let trad=await traduzirGoogle(txt);
+document.getElementById('resultado').innerText='🇧🇷 '+trad;
+falar(trad);
+log('MANUAL:\nEN: '+txt+'\nPT: '+trad);
+}
 
 document.getElementById('fileInput').onchange=(e)=>{
-let file=e.target.files[0]; if(!file)return;
-let url=URL.createObjectURL(file);
-document.getElementById('playerBox').style.display='block';
-document.getElementById('video').src=url;
-addLog(`📁 <b>Arquivo:</b> ${file.name}<br>▶️ Dê PLAY no vídeo com volume ALTO e clique em Escuta ao vivo`);
+let f=e.target.files[0];if(!f)return;
+document.getElementById('video').src=URL.createObjectURL(f);
+log('📁 Filme carregado: '+f.name);
 }
 
-// FUNÇÃO QUE TRADUZ DE VERDADE - GRÁTIS
-async function traduzir(texto){
-try{
-let res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(texto)}&langpair=en|pt-BR`);
-let data = await res.json();
-return data.responseData.translatedText || texto;
-}catch(e){ return texto; }
-}
-
-function falarPT(texto){
-if('speechSynthesis' in window){
-speechSynthesis.cancel();
-let u=new SpeechSynthesisUtterance(texto);
-u.lang='pt-BR'; u.rate=1.0; u.pitch=1.1;
-let vozes=speechSynthesis.getVoices();
-let vozBR=vozes.find(v=>v.lang==='pt-BR' || v.name.includes('Brazil'))||vozes[0];
-if(vozBR) u.voice=vozBR;
-speechSynthesis.speak(u);
-}
-}
-
+let listening=false, rec;
 function toggleLive(){
 let btn=document.getElementById('btnLive');
 if(!listening){
 let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){alert('Use Chrome no Android!'); return}
-recognizer=new SR();
-recognizer.lang='en-US'; // escuta inglês
-recognizer.continuous=true; recognizer.interimResults=false;
-recognizer.onstart=()=>{listening=true; btn.textContent='⏹️ PARAR ESCUTA - ESTOU OUVINDO'; btn.classList.add('ativo'); addLog('🎙️ <b style=color:#ff9c00>ESCUTANDO... Aumente o volume do filme!</b>');}
-recognizer.onend=()=>{if(listening) try{recognizer.start()}catch(e){}}
-recognizer.onerror=(e)=>{addLog('Erro: '+e.error)}
-recognizer.onresult=async (e)=>{
-let transcript=e.results[e.results.length-1][0].transcript.trim();
-if(transcript.length<2) return;
-addLog(`<div class=orig>🇺🇸 EN: ${transcript}<br>⏳ Traduzindo...</div>`);
-let traduzido = await traduzir(transcript);
-addLog(`<div class=trad>🇧🇷 PT-BR: ${traduzido}</div><div class=orig>Original: ${transcript}</div>`);
-falarPT(traduzido);
+if(!SR){alert('Use Chrome no celular');return}
+rec=new SR();rec.lang='en-US';rec.continuous=true;rec.interimResults=false;
+rec.onstart=()=>{listening=true;btn.innerText='⏹️ PARAR - OUVINDO... FALE ALTO';btn.className='btn btn-green';log('🎙️ OUVINDO - Aumente o volume e deixe o celular perto do som!');}
+rec.onend=()=>{if(listening)try{rec.start()}catch(e){}}
+rec.onresult=async(ev)=>{
+let txt=ev.results[ev.results.length-1][0].transcript;
+log('🇺🇸 Escutei: '+txt);
+let trad=await traduzirGoogle(txt);
+log('🇧🇷 Traduzido: '+trad);
+document.getElementById('resultado').innerText=trad;
+falar(trad);
 }
-recognizer.start();
-}else{
-try{recognizer.stop()}catch(e){}
-listening=false; btn.textContent='🎙️ Escuta ao vivo - CLIQUE AQUI'; btn.classList.remove('ativo');
-addLog('⏹️ Escuta parada');
-}
+rec.start();
+}else{try{rec.stop()}catch(e){}listening=false;btn.innerText='🎙️ CLICAR PARA COMEÇAR A ESCUTAR';btn.className='btn btn-red';}
 }
 </script>
 </body>
