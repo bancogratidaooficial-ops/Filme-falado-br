@@ -2,110 +2,99 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FILME FALADO BR V5 - WHISPER REAL</title>
+<title>FILME FALADO BR V7 - POR LINK</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0a0a0f;color:#fff;font-family:Arial}
-.top{padding:14px;font-weight:900;background:#000}
+.top{padding:14px;background:#000;font-weight:900}.top b{color:#ff9c00}
 .box{margin:12px;background:#14141f;border-radius:16px;padding:12px;border:1px solid #333}
 .btn{width:100%;padding:16px;border:0;border-radius:14px;font-weight:900;margin-top:8px}
-.btn-orange{background:#ff9c00;color:#000}.btn-green{background:#00ff88;color:#000}
-.btn-blue{background:#0066ff;color:#fff}
-#log{background:#000;border-radius:10px;padding:10px;max-height:400px;overflow:auto;font-size:13px;margin-top:10px}
-video{width:100%;border-radius:12px}
+.btn-orange{background:#ff9c00;color:#000}.btn-green{background:#00ff88;color:#000}.btn-blue{background:#1a73e8;color:#fff}
+input{width:100%;padding:14px;border-radius:10px;border:1px solid #444;background:#000;color:#fff}
+#log{background:#000;border-radius:10px;padding:10px;max-height:350px;overflow:auto;font-size:13px;margin-top:10px}
+video,iframe{width:100%;border-radius:12px;background:#000;min-height:220px}
 </style>
-<script type="importmap">
-{"imports":{"@xenova/transformers":"https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"}}
-</script>
 </head>
 <body>
-<div class="top">🎬 FILME FALADO BR <b style="color:#ff9c00">V5 - WHISPER REAL FUNCIONA</b></div>
+<div class="top">🎬 FILME FALADO BR <b>V7 - POR LINK - NÃO TRAVA MAIS</b></div>
 
 <div class="box">
-<b>📁 Carrega o filme (172MB)</b>
-<input type="file" id="file" accept="video/*" style="width:100%;padding:10px;background:#000;color:#fff;border-radius:8px;margin-top:6px">
-<video id="video" controls playsinline></video>
-<div id="status" style="color:#ff9c00;margin-top:8px;font-size:12px">Aguardando...</div>
+<b>🔗 PASSO 1: Cola o link do filme</b>
+<p style="color:#999;font-size:11px">Pode ser link direto .mp4, ou link do YouTube, ou do Google Drive</p>
+<input id="linkInput" placeholder="Ex: https://www.youtube.com/watch?v=... ou https://.../filme.mp4" value="">
+<button class="btn btn-orange" onclick="carregarLink()">▶️ CARREGAR FILME PELO LINK</button>
+<div id="playerArea"></div>
 </div>
 
 <div class="box">
-<button class="btn btn-orange" id="btnLoad" onclick="carregarModelo()">🤖 1 - BAIXAR WHISPER (30MB - só 1 vez)</button>
-<button class="btn btn-blue" id="btnDub" onclick="dublarTrecho()" style="display:none">▶️ 2 - DUBLAR TRECHO ATUAL DO FILME</button>
-<button class="btn btn-green" id="btnAuto" onclick="autoDublar()" style="display:none">🔁 DUBLAGEM AUTOMÁTICA A CADA 30s</button>
-<div id="log"></div>
+<b>🤖 PASSO 2: Dublar</b>
+<button class="btn btn-blue" onclick="dublar15s()">🎬 DUBLAR 15s DO TRECHO ATUAL</button>
+<button class="btn btn-green" id="auto" onclick="toggleAuto()">🔁 AUTO DUBLAGEM</button>
+<div id="log">Cole um link e clique em CARREGAR. Teste com: https://www.w3schools.com/html/mov_bbb.mp4</div>
 </div>
 
-<script type="module">
-import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js';
-env.allowLocalModels=false;
-
-let transcriber=null, video=document.getElementById('video'), logEl=document.getElementById('log'), statusEl=document.getElementById('status');
-let audioCtx=null, audioBuffer=null;
+<script>
+let video=null, logEl=document.getElementById('log'), auto=false, interval=null;
 
 function log(t){logEl.innerHTML=t+'<br><br>'+logEl.innerHTML}
-function falar(txt){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';let v=speechSynthesis.getVoices().find(x=>x.lang.includes('pt-BR'));if(v)u.voice=v;speechSynthesis.speak(u);}
-async function traduzir(t){try{let r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt&dt=t&q=${encodeURIComponent(t)}`);let j=await r.json();return j[0].map(a=>a[0]).join('');}catch(e){return t}}
+function falar(txt){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(txt);u.lang='pt-BR';u.rate=1;let v=speechSynthesis.getVoices().find(x=>x.lang.toLowerCase().includes('pt-br'));if(v)u.voice=v;speechSynthesis.speak(u);}
+async function traduzir(t){try{let r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=pt&dt=t&q=${encodeURIComponent(t)}`);let j=await r.json();return j[0].map(x=>x[0]).join('');}catch(e){return t}}
 
-document.getElementById('file').onchange=async(e)=>{
-let f=e.target.files[0];if(!f)return;
-video.src=URL.createObjectURL(f);
-statusEl.innerText='Decodificando áudio do arquivo... pode demorar 20s para 172MB';
-try{
-audioCtx=new (window.AudioContext||window.webkitAudioContext)({sampleRate:16000});
-let ab=await f.arrayBuffer();
-audioBuffer=await audioCtx.decodeAudioData(ab);
-statusEl.innerText=`Áudio decodificado! Duração: ${(audioBuffer.duration/60).toFixed(1)} min. Agora clique em BAIXAR WHISPER.`;
-log(`📁 Filme carregado e áudio extraído!`);
-}catch(err){
-statusEl.innerText='Erro ao decodificar: '+err.message+' - Tente um arquivo menor';
-log('Erro: '+err.message);
+function carregarLink(){
+let link=document.getElementById('linkInput').value.trim();
+if(!link){alert('Cole o link!');return}
+let area=document.getElementById('playerArea');
+area.innerHTML='';
+
+if(link.includes('youtube.com')||link.includes('youtu.be')){
+let id=link.includes('youtu.be')?link.split('/').pop().split('?')[0]:new URL(link).searchParams.get('v');
+area.innerHTML=`<iframe id="yt" src="https://www.youtube.com/embed/${id}?enablejsapi=1" frameborder="0" allow="autoplay" allowfullscreen></iframe>
+<p style="color:#ff9c00;font-size:11px;margin-top:6px">YouTube carregado! Para YouTube, use o botão DUBLAR e deixe o som do celular alto (YouTube não deixa pegar áudio direto).</p>`;
+video=null;
+log(`📺 YouTube ID ${id} carregado! Dê play e clique em DUBLAR 15s.`);
+}else{
+// Link direto mp4
+area.innerHTML=`<video id="video" controls playsinline crossorigin="anonymous"></video>`;
+video=document.getElementById('video');
+video.src=link;
+video.play().catch(()=>{});
+log(`📁 Filme por link carregado: ${link.substring(0,60)}...`);
 }
-};
+}
 
-window.carregarModelo=async()=>{
-statusEl.innerText='Baixando Whisper Tiny (30MB)... deixe na tela';
-logEl.innerHTML='';
-log('🤖 Baixando modelo Whisper... primeira vez demora 1-2 min');
-try{
-transcriber=await pipeline('automatic-speech-recognition','Xenova/whisper-tiny');
-statusEl.innerText='✅ Whisper pronto! Agora pode dublar';
-document.getElementById('btnLoad').style.display='none';
-document.getElementById('btnDub').style.display='block';
-document.getElementById('btnAuto').style.display='block';
-log('✅ Modelo carregado! Clique em DUBLAR TRECHO ATUAL');
-}catch(e){statusEl.innerText='Erro: '+e.message; log('Erro ao baixar: '+e.message+' - Verifique internet');}
-};
+async function dublar15s(){
+let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){log('❌ Use Chrome no Android');return}
 
-window.dublarTrecho=async()=>{
-if(!audioBuffer||!transcriber){alert('Carregue filme e modelo primeiro');return}
-let currentTime=video.currentTime;
-let startSample=Math.floor(currentTime*16000);
-let endSample=Math.min(startSample+30*16000, audioBuffer.length); // 30 segundos
-let chunk=audioBuffer.getChannelData(0).slice(startSample, endSample);
+let recognition=new SR();
+recognition.lang='ru-RU'; // seu filme é russo, troque para en-US se for inglês
+recognition.continuous=false;
 
-statusEl.innerText=`Transcrevendo trecho ${currentTime.toFixed(0)}s até ${(currentTime+30).toFixed(0)}s...`;
-log(`⏳ Transcrevendo ${currentTime.toFixed(0)}s... (30s de áudio)`);
+log('⏳ Ouvindo 15s... Deixe o volume alto!');
 
-try{
-let result=await transcriber(chunk, {language:'auto', task:'transcribe'});
-let texto=result.text.trim();
-if(!texto){log('🔇 Silêncio neste trecho, tente mais pra frente');return}
-log(`🇺🇸 Original: ${texto}`);
-let pt=await traduzir(texto);
-log(`🇧🇷 DUBLADO: ${pt}`);
+recognition.onresult=async(ev)=>{
+let txt=ev.results[0][0].transcript;
+log(`🇷🇺/🇺🇸 Original: ${txt}`);
+let pt=await traduzir(txt);
+log(`🇧🇷 <b style="color:#00ff88;font-size:16px">DUBLADO: ${pt}</b>`);
 falar(pt);
-statusEl.innerText=`✅ Dublado: ${pt}`;
-}catch(e){statusEl.innerText='Erro transcrição: '+e.message; log('Erro: '+e.message)}
 };
+recognition.onerror=(e)=>{log(`⚠️ Não ouvi fala nesse trecho (${e.error}). Avance o filme para uma cena com diálogo mais alto.`)};
+recognition.onend=()=>{log('✅ Pronto para próximo trecho.');};
 
-let autoInterval=null;
-window.autoDublar=()=>{
-if(autoInterval){clearInterval(autoInterval);autoInterval=null;document.getElementById('btnAuto').innerText='🔁 DUBLAGEM AUTOMÁTICA A CADA 30s';log('⏹️ Auto parado');return}
-document.getElementById('btnAuto').innerText='⏹️ PARAR AUTO';
-log('🔁 Auto iniciado - vai dublar a cada 30s enquanto o filme toca');
-video.play();
-autoInterval=setInterval(()=>{if(!video.paused) window.dublarTrecho();},30000);
-window.dublarTrecho();
-};
+try{recognition.start(); setTimeout(()=>{try{recognition.stop()}catch(e){}},15000);}catch(e){log('Erro: '+e.message)}
+}
+
+function toggleAuto(){
+let btn=document.getElementById('auto');
+if(!auto){
+auto=true; btn.innerText='⏹️ PARAR AUTO'; btn.style.background='#ff0000'; btn.style.color='#fff';
+log('🔁 Auto ligado a cada 20s');
+interval=setInterval(()=>dublar15s(),20000);
+}else{
+auto=false; btn.innerText='🔁 AUTO DUBLAGEM'; btn.style.background='#00ff88'; btn.style.color='#000';
+clearInterval(interval); log('⏹️ Auto parado');
+}
+}
 </script>
 </body>
 </html>
